@@ -5,13 +5,13 @@ import time
 import random
 import os
 #control room.
-enable_animation = "YES" # Set to "YES" to enable animation, set to ">
-enable_ascii_art = "YES"   # Set to "YES" to enable ASCII art header,>
-reduce_sleep_time = "NO"   # Set to "YES" to reduce sleep time, set t>
-print_details = "YES"   # Set to "YES" to print details, set to "NO" >
-enable_shuffling = "YES"   # Set to "YES" to enable shuffling, set to>
-check_existing_terms = "YES"   # Set to "YES" to check existing terms>
-fetch_timeout = 60  #its the time to auto. stop process and save if it git stuck ,you can adjust time as you want
+enable_animation = "YES" # Set to "YES" to enable animation, set to "NO" disable animation "
+enable_ascii_art = "YES"   # Set to "YES" to enable ASCII art header,set TO "NO" disable ASCII art
+reduce_sleep_time = "NO"   # Set to "YES" to reduce sleep time, set to "NO" to continue in default sleep time
+print_details = "YES"   # Set to "YES" to print details, set to "NO" to disable printing except finished notification 
+enable_shuffling = "YES"   # Set to "YES" to enable shuffling, set to "NO" disable shuffling 
+check_existing_terms = "YES"   # Set to "YES" to check existing terms , set to "NO" to disable shuffling 
+fetch_timeout = 60  #its the time to auto. stop process and save if it get stuck ,you can adjust time as you want
 
 LANG = 'en-US'
 GEO = 'US' #change to yoyr region
@@ -121,7 +121,7 @@ def main():
         else:
             new_terms_count = 0
         print(f"\n\033[1;35mNew terms added: {new_terms_count}\033[0m")
-        print("\n\033[1;34mThank you for using the Search Term Generator!\033[0m")
+        print("\n\033[1;34m yes i was bored asf , anyways delete txt txt after use!\033[0m")
 
 def print_colorful(text):
     colors = [31, 32, 33, 34, 35, 36]
