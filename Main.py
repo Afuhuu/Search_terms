@@ -3,8 +3,11 @@ import json
 from datetime import date, timedelta
 import time
 import random
-import os                                                                                                                                               #control room.                                                                                                                                          enable_animation = "YES" # Set to "YES" to enable animation, set to ">
-enable_ascii_art = "YES"   # Set to "YES" to enable ASCII art header,>                                                                                  reduce_sleep_time = "NO"   # Set to "YES" to reduce sleep time, set t>
+import os
+#control room.
+enable_animation = "YES" # Set to "YES" to enable animation, set to ">
+enable_ascii_art = "YES"   # Set to "YES" to enable ASCII art header,>
+reduce_sleep_time = "NO"   # Set to "YES" to reduce sleep time, set t>
 print_details = "YES"   # Set to "YES" to print details, set to "NO" >
 enable_shuffling = "YES"   # Set to "YES" to enable shuffling, set to>
 check_existing_terms = "YES"   # Set to "YES" to check existing terms>
@@ -15,7 +18,9 @@ GEO = 'US' #change to yoyr region
 numberOfWords = 600 # as you want
 
 def load_existing_search_terms(file_path):
-    existing_terms = set()                                                                                                                                  try:                                                                                                                                                        with open(file_path, 'r') as file:
+    existing_terms = set()
+    try:
+        with open(file_path, 'r') as file:
             for line in file:
                 existing_terms.add(line.strip().lower())
     except FileNotFoundError:
@@ -27,7 +32,8 @@ def getGoogleTrends(existing_terms, numberOfWords):
     i = 0
     start_time = time.time()
     while len(search_terms) < numberOfWords and time.time() - start_time < fetch_timeout:
-        i += 1                                                                                                                                                  r = requests.get('https://trends.google.com/trends/api/dailytrends?hl=' + LANG + '&ed=' + str(
+        i += 1
+        r = requests.get('https://trends.google.com/trends/api/dailytrends?hl=' + LANG + '&ed=' + str(
             (date.today() - timedelta(days=i)).strftime('%Y%m%d')) + '&geo=' + GEO + '&ns=15')
         google_trends = json.loads(r.text[6:])
         if 'default' in google_trends and 'trendingSearchesDays' in google_trends['default']:
