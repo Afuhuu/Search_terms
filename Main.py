@@ -79,7 +79,7 @@ def main():
 
         subtitles = [
             "\033[1;35m        Search Term Generator",
-            "        Based on Farzshad\033[0m"
+            "        Based on Farzshad's bot\033[0m"
         ]
 
         if enable_animation == "YES":
