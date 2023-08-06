@@ -5,7 +5,7 @@ import time
 import random
 import os
 
-# Global configuration variables
+# control 🎛️ room
 enable_animation = "YES" # Set to "YES" to enable animations, set to "NO" to disable
 enable_ascii_art = "YES" # Set to "YES" to enable ASCII art, set to "NO" to disable
 reduce_sleep_time = "NO" # Set to "YES" to reduce sleep, set to "NO" to continue normal speed 
