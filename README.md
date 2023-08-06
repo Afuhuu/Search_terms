@@ -35,6 +35,7 @@ The **Search Term Generator** is a Python script that fetches trending search te
 
 - ASCII art header by [ASCII Art Studio](https://www.asciiart.eu/).
 - Fun facts provided by [Useless Facts API](https://useless-facts.sameerkumar.website/api).
+- algorithm and logic based on farzshad's Microsoft rewards farmer
 
 ## License
 
