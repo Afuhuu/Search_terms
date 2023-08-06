@@ -15,7 +15,8 @@ fetch_timeout = 60  #its the time to auto. stop process and save if it get stuck
 
 LANG = 'en-US'
 GEO = 'US' #change to yoyr region
-numberOfWords = 600 # as you want
+numberOfWords = 600 # as you want                               
+FUN_FACTS_API_URL = "https://useless-facts.sameerkumar.website/api"
 
 def load_existing_search_terms(file_path):
     existing_terms = set()
@@ -27,11 +28,17 @@ def load_existing_search_terms(file_path):
         pass
     return existing_terms
 
+def fetch_random_fun_fact():
+    response = requests.get(FUN_FACTS_API_URL)
+    if response.status_code == 200:
+        fact = json.loads(response.text)["data"]
+        return fact
+    return None
+
 def getGoogleTrends(existing_terms, numberOfWords):
     search_terms = set()
     i = 0
-    start_time = time.time()
-    while len(search_terms) < numberOfWords and time.time() - start_time < fetch_timeout:
+    while len(search_terms) < numberOfWords:
         i += 1
         r = requests.get('https://trends.google.com/trends/api/dailytrends?hl=' + LANG + '&ed=' + str(
             (date.today() - timedelta(days=i)).strftime('%Y%m%d')) + '&geo=' + GEO + '&ns=15')
@@ -49,8 +56,12 @@ def getGoogleTrends(existing_terms, numberOfWords):
                             search_terms.add(related_term)
                 if print_details == "YES":
                     print_colorful(f"Retrieved {len(search_terms)} unique search terms...")
+                    if enable_random_fun_fact == "YES" and random.choice([True, False]):
+                        fun_fact = fetch_random_fun_fact()
+                        if fun_fact:
+                            print_colorful("\033[1;36mFun Fact:", fun_fact, "\033[0m")
         time.sleep(1 if reduce_sleep_time == "YES" else 2)
-
+        
     return list(search_terms)[:numberOfWords]
 
 def save_search_terms_to_file(search_terms, file_path):
@@ -60,48 +71,67 @@ def save_search_terms_to_file(search_terms, file_path):
 
 def main():
     os.system('clear')
-
+    
     if enable_ascii_art == "YES":
-        header = [
-            "\033[1;34m     ___           ___           ___           ___     ",
-            "    /  /\\         /  /\\         /  /\\         /__/\\    ",
-            "   /  /:/_       /  /::\\       /  /:/_       |  |::\\   ",
-            "  /  /:/ /\\     /  /:/\\:\\     /  /:/ /\\      |  |:|:\\  ",
-            " /  /:/ /:/_   /  /:/~/:/    /  /:/ /::\\     |__|:|\\:\\ ",
-            "/__/:/ /:/ /\\ /__/:/ /:/___ /__/:/ /:/\\:\\    /__/:/ \\:\\",
-            "\\  \\:\\/:/ /:/ \\  \\:\\/:::::/ \\  \\:\\/:/__\\/    \\__\\/   \\:\\",
-            " \\  \\::/ /:/   \\  \\::/~~~~   \\  \\::/             /  /\\",
-            "  \\  \\:\\/:/     \\  \\:\\        \\  \\:\\            /  /:/",
-            "   \\  \\::/       \\  \\:\\        \\  \\:\\          /  /:/ ",
-            "    \\__\\/         \\__\\/         \\__\\/          \\__\\/  ",
-            "\033[0m"
+        header_options = [
+            [
+                "\033[1;34m     ___           ___           ___           ___     ",
+                "    /  /\\         /  /\\         /  /\\         /__/\\    ",
+                "   /  /:/_       /  /::\\       /  /:/_       |  |::\\   ",
+                "  /  /:/ /\\     /  /:/\\:\\     /  /:/ /\\      |  |:|:\\  ",
+                " /  /:/ /:/_   /  /:/~/:/    /  /:/ /::\\     |__|:|\\:\\ ",
+                "/__/:/ /:/ /\\ /__/:/ /:/___ /__/:/ /:/\\:\\    /__/:/ \\:\\",
+                "\\  \\:\\/:/ /:/ \\  \\:\\/:::::/ \\  \\:\\/:/__\\/    \\__\\/   \\:\\",
+                " \\  \\::/ /:/   \\  \\::/~~~~   \\  \\::/             /  /\\",
+                "  \\  \\:\\/:/     \\  \\:\\        \\  \\:\\            /  /:/",
+                "   \\  \\::/       \\  \\:\\        \\  \\:\\          /  /:/ ",
+                "    \\__\\/         \\__\\/         \\__\\/          \\__\\/  ",
+                "\033[0m"
+            ],
+            [
+                "\033[1;33m   _________                      ________        ",
+                "  /   _____/_____    _____   ____ \\_____  \\______ ",
+                "  \\_____  \\ \\__  \\  /     \\_/ __ \\ /   |   \\____ \\",
+                "  /        \\ / __ \\|  Y Y  \\  ___//    |    \\  |_> >",
+                "/_______  /(____  /__|_|  /\\___  >_______  /   __/ ",
+                "        \\/      \\/      \\/     \\/        \\/|__|    \033[0m"
+            ]
         ]
-
-        subtitles = [
-            "\033[1;35m        Search Term Generator",
-            "        Based on Farzshad's bot\033[0m"
+        
+        subtitles_options = [
+            [
+                "\033[1;35m        Search Term Generator",
+                "        Based on Farzshad\033[0m"
+            ],
+            [
+                "\033[1;35m        Trendy Search Term Generator",
+                "        Created by aflh\033[0m"
+            ]
         ]
-
+        
+        random_header = random.choice(header_options)
+        random_subtitles = random.choice(subtitles_options)
+        
         if enable_animation == "YES":
             for _ in range(2):
                 os.system('clear')
-                for line in header:
+                for line in random_header:
                     print(line)
                     time.sleep(0.05)
                 time.sleep(1)
                 os.system('clear')
-                for line in subtitles:
+                for line in random_subtitles:
                     print(line)
                     time.sleep(0.05)
                 time.sleep(1)
-
-    existing_search_terms = load_existing_search_terms('search_terms.txt')
+    
+    existing_search_terms = load_existing_search_terms('search_terms_600.txt')
     if check_existing_terms == "YES":
         new_search_terms = getGoogleTrends(existing_search_terms, numberOfWords)
         all_search_terms = existing_search_terms.union(new_search_terms)
     else:
         all_search_terms = existing_search_terms
-
+    
     if enable_shuffling == "YES":
         shuffled_search_terms = list(all_search_terms)
         random.shuffle(shuffled_search_terms)
@@ -111,17 +141,17 @@ def main():
             time.sleep(2)
 
         if check_existing_terms == "YES":
-            save_search_terms_to_file(new_search_terms, 'search_terms.txt')
+            save_search_terms_to_file(new_search_terms, 'search_terms_600.txt')
         else:
-            save_search_terms_to_file(existing_search_terms, 'search_terms.txt')
-
+            save_search_terms_to_file(existing_search_terms, 'search_terms_600.txt')
+    
     if print_details == "YES" and enable_shuffling == "YES":
         if check_existing_terms == "YES":
             new_terms_count = len(new_search_terms)
         else:
             new_terms_count = 0
         print(f"\n\033[1;35mNew terms added: {new_terms_count}\033[0m")
-        print("\n\033[1;34m yes i was bored asf , anyways delete txt txt after use!\033[0m")
+        print("\n\033[1;34mThank you for using the Search Term Generator!\033[0m")
 
 def print_colorful(text):
     colors = [31, 32, 33, 34, 35, 36]
@@ -130,3 +160,8 @@ def print_colorful(text):
 
 if __name__ == "__main__":
     main()
+
+
+
+        
+    
