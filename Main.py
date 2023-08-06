@@ -4,20 +4,25 @@ from datetime import date, timedelta
 import time
 import random
 import os
-#control room.
-enable_animation = "YES" # Set to "YES" to enable animation, set to "NO" disable animation "
-enable_ascii_art = "YES"   # Set to "YES" to enable ASCII art header,set TO "NO" disable ASCII art
-reduce_sleep_time = "NO"   # Set to "YES" to reduce sleep time, set to "NO" to continue in default sleep time
-print_details = "YES"   # Set to "YES" to print details, set to "NO" to disable printing except finished notification 
-enable_shuffling = "YES"   # Set to "YES" to enable shuffling, set to "NO" disable shuffling 
-check_existing_terms = "YES"   # Set to "YES" to check existing terms , set to "NO" to disable shuffling 
-fetch_timeout = 60  #its the time to auto. stop process and save if it get stuck ,you can adjust time as you want
 
+# Global configuration variables
+enable_animation = "YES" # Set to "YES" to enable animations, set to "NO" to disable
+enable_ascii_art = "YES" # Set to "YES" to enable ASCII art, set to "NO" to disable
+reduce_sleep_time = "NO" # Set to "YES" to reduce sleep, set to "NO" to continue normal speed 
+print_details = "YES" # Set to "YES" to enable printing, set to "NO" to disable 
+enable_shuffling = "YES" # Set to "YES" to enable shuffling search terms, set to "NO" to disable
+check_existing_terms = "YES" # Set to "YES" to enable to check for existing terms, set to "NO" to disable
+enable_fun_fact = "YES"  # Set to "YES" to enable fun facts, set to "NO" to disable
+fetch_timeout = 30  # time to automatically finish program if it's stuck 
+
+# Other global variables
 LANG = 'en-US'
-GEO = 'US' #change to yoyr region
-numberOfWords = 600 # as you want                               
-FUN_FACTS_API_URL = "https://useless-facts.sameerkumar.website/api"
+GEO = 'US' #set to your country 
+numberOfWords = 60 #change as you want 
 
+# API endpoint for fetching random fun facts
+FUN_FACTS_API = "https://useless-facts.sameerkumar.website/api"
+start_time = time.time()
 def load_existing_search_terms(file_path):
     existing_terms = set()
     try:
@@ -28,17 +33,17 @@ def load_existing_search_terms(file_path):
         pass
     return existing_terms
 
-def fetch_random_fun_fact():
-    response = requests.get(FUN_FACTS_API_URL)
+def get_random_fun_fact():
+    response = requests.get(FUN_FACTS_API)
     if response.status_code == 200:
-        fact = json.loads(response.text)["data"]
+        fact = response.json()["data"]
         return fact
     return None
 
 def getGoogleTrends(existing_terms, numberOfWords):
     search_terms = set()
     i = 0
-    while len(search_terms) < numberOfWords:
+    while len(search_terms) < numberOfWords and time.time() - start_time < fetch_timeout:
         i += 1
         r = requests.get('https://trends.google.com/trends/api/dailytrends?hl=' + LANG + '&ed=' + str(
             (date.today() - timedelta(days=i)).strftime('%Y%m%d')) + '&geo=' + GEO + '&ns=15')
@@ -56,12 +61,8 @@ def getGoogleTrends(existing_terms, numberOfWords):
                             search_terms.add(related_term)
                 if print_details == "YES":
                     print_colorful(f"Retrieved {len(search_terms)} unique search terms...")
-                    if enable_random_fun_fact == "YES" and random.choice([True, False]):
-                        fun_fact = fetch_random_fun_fact()
-                        if fun_fact:
-                            print_colorful("\033[1;36mFun Fact:", fun_fact, "\033[0m")
         time.sleep(1 if reduce_sleep_time == "YES" else 2)
-        
+
     return list(search_terms)[:numberOfWords]
 
 def save_search_terms_to_file(search_terms, file_path):
@@ -71,67 +72,48 @@ def save_search_terms_to_file(search_terms, file_path):
 
 def main():
     os.system('clear')
-    
+
     if enable_ascii_art == "YES":
-        header_options = [
-            [
-                "\033[1;34m     ___           ___           ___           ___     ",
-                "    /  /\\         /  /\\         /  /\\         /__/\\    ",
-                "   /  /:/_       /  /::\\       /  /:/_       |  |::\\   ",
-                "  /  /:/ /\\     /  /:/\\:\\     /  /:/ /\\      |  |:|:\\  ",
-                " /  /:/ /:/_   /  /:/~/:/    /  /:/ /::\\     |__|:|\\:\\ ",
-                "/__/:/ /:/ /\\ /__/:/ /:/___ /__/:/ /:/\\:\\    /__/:/ \\:\\",
-                "\\  \\:\\/:/ /:/ \\  \\:\\/:::::/ \\  \\:\\/:/__\\/    \\__\\/   \\:\\",
-                " \\  \\::/ /:/   \\  \\::/~~~~   \\  \\::/             /  /\\",
-                "  \\  \\:\\/:/     \\  \\:\\        \\  \\:\\            /  /:/",
-                "   \\  \\::/       \\  \\:\\        \\  \\:\\          /  /:/ ",
-                "    \\__\\/         \\__\\/         \\__\\/          \\__\\/  ",
-                "\033[0m"
-            ],
-            [
-                "\033[1;33m   _________                      ________        ",
-                "  /   _____/_____    _____   ____ \\_____  \\______ ",
-                "  \\_____  \\ \\__  \\  /     \\_/ __ \\ /   |   \\____ \\",
-                "  /        \\ / __ \\|  Y Y  \\  ___//    |    \\  |_> >",
-                "/_______  /(____  /__|_|  /\\___  >_______  /   __/ ",
-                "        \\/      \\/      \\/     \\/        \\/|__|    \033[0m"
-            ]
+        header = [
+            "\033[1;34m     ___           ___           ___           ___     ",
+            "    /  /\\         /  /\\         /  /\\         /__/\\    ",
+            "   /  /:/_       /  /::\\       /  /:/_       |  |::\\   ",
+            "  /  /:/ /\\     /  /:/\\:\\     /  /:/ /\\      |  |:|:\\  ",
+            " /  /:/ /:/_   /  /:/~/:/    /  /:/ /::\\     |__|:|\\:\\ ",
+            "/__/:/ /:/ /\\ /__/:/ /:/___ /__/:/ /:/\\:\\    /__/:/ \\:\\",
+            "\\  \\:\\/:/ /:/ \\  \\:\\/:::::/ \\  \\:\\/:/__\\/    \\__\\/   \\:\\",
+            " \\  \\::/ /:/   \\  \\::/~~~~   \\  \\::/             /  /\\",
+            "  \\  \\:\\/:/     \\  \\:\\        \\  \\:\\            /  /:/",
+            "   \\  \\::/       \\  \\:\\        \\  \\:\\          /  /:/ ",
+            "    \\__\\/         \\__\\/         \\__\\/          \\__\\/  ",
+            "\033[0m"
         ]
-        
-        subtitles_options = [
-            [
-                "\033[1;35m        Search Term Generator",
-                "        Based on Farzshad\033[0m"
-            ],
-            [
-                "\033[1;35m        Trendy Search Term Generator",
-                "        Created by aflh\033[0m"
-            ]
+
+        subtitles = [
+            "\033[1;35m        trendy Search Term Generator",
+            "        Based on Farzshad\033[0m"
         ]
-        
-        random_header = random.choice(header_options)
-        random_subtitles = random.choice(subtitles_options)
-        
+
         if enable_animation == "YES":
             for _ in range(2):
                 os.system('clear')
-                for line in random_header:
+                for line in header:
                     print(line)
                     time.sleep(0.05)
                 time.sleep(1)
                 os.system('clear')
-                for line in random_subtitles:
+                for line in subtitles:
                     print(line)
                     time.sleep(0.05)
                 time.sleep(1)
-    
-    existing_search_terms = load_existing_search_terms('search_terms_600.txt')
+
+    existing_search_terms = load_existing_search_terms('search_terms.txt')
     if check_existing_terms == "YES":
         new_search_terms = getGoogleTrends(existing_search_terms, numberOfWords)
         all_search_terms = existing_search_terms.union(new_search_terms)
     else:
         all_search_terms = existing_search_terms
-    
+
     if enable_shuffling == "YES":
         shuffled_search_terms = list(all_search_terms)
         random.shuffle(shuffled_search_terms)
@@ -141,17 +123,26 @@ def main():
             time.sleep(2)
 
         if check_existing_terms == "YES":
-            save_search_terms_to_file(new_search_terms, 'search_terms_600.txt')
+            save_search_terms_to_file(new_search_terms, 'search_terms.txt')
         else:
-            save_search_terms_to_file(existing_search_terms, 'search_terms_600.txt')
-    
+            save_search_terms_to_file(existing_search_terms, 'search_terms.txt')
+
     if print_details == "YES" and enable_shuffling == "YES":
         if check_existing_terms == "YES":
             new_terms_count = len(new_search_terms)
         else:
             new_terms_count = 0
         print(f"\n\033[1;35mNew terms added: {new_terms_count}\033[0m")
-        print("\n\033[1;34mThank you for using the Search Term Generator!\033[0m")
+
+    if enable_fun_fact == "YES":
+        fun_fact = get_random_fun_fact()
+        if fun_fact:
+            print_colorful("\n🎉 Fun Fact: " + fun_fact + " 🎨")
+        else:
+            print("\nFailed to fetch a fun fact!")
+
+    if print_details == "YES" and enable_shuffling == "YES":
+        print("\n\033[1;34m don't forget to delete txt fter every use....\033[0m")
 
 def print_colorful(text):
     colors = [31, 32, 33, 34, 35, 36]
@@ -160,8 +151,3 @@ def print_colorful(text):
 
 if __name__ == "__main__":
     main()
-
-
-
-        
-    
