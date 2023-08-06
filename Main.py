@@ -13,7 +13,7 @@ print_details = "YES" # Set to "YES" to enable printing, set to "NO" to disable
 enable_shuffling = "YES" # Set to "YES" to enable shuffling search terms, set to "NO" to disable
 check_existing_terms = "YES" # Set to "YES" to enable to check for existing terms, set to "NO" to disable
 enable_fun_fact = "YES"  # Set to "YES" to enable fun facts, set to "NO" to disable
-fetch_timeout = 30  # time to automatically finish program if it's stuck 
+fetch_timeout = 60  # time to automatically finish program if it's stuck 
 
 # Other global variables
 LANG = 'en-US'
